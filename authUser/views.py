@@ -26,3 +26,13 @@ class CurrentUserView(APIView):
             "last_name": user.last_name,
             "id": user.id
         })
+
+    def put(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User updated successfully"}, status=status.HTTP_200_OK)
+
+        return Response({"message" : serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
