@@ -4,9 +4,15 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, extend_schema_view
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        request=UserSerializer,
+        responses={201: {"message": "User created successfully"}},
+    )
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -17,14 +23,17 @@ class RegisterView(APIView):
 class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        request={},
+        responses={200: UserSerializer},
+    )
     def get(self, request):
         user = request.user  # Получаем текущего аутентифицированного пользователя
         return Response({
             "nickname": user.nickname,
             "email": user.email,
             "first_name": user.first_name,
-            "last_name": user.last_name,
-            "id": user.id
+            "last_name": user.last_name
         })
 
     def put(self, request):

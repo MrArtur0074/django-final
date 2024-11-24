@@ -33,11 +33,22 @@ class CustomUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
+    is_superuser = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'nickname'  # Это будет полем для аутентификации
     REQUIRED_FIELDS = ['email']  # Обязательно для superuser
 
-    def __str__(self):
-        return self.nickname
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser or self.has_module_perms(perm)
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
+    def get_user_permissions(self):
+
+        return []
+
+    def get_group_permissions(self):
+        return []
